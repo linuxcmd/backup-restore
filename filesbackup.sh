@@ -2,12 +2,15 @@
 #script to create backup of wp-content
 file="/var/wp-content"
 date=`date +"%Y-%m-%d_%H-%M-%S"`
-dbname=bovapingwp
+#enter database name
+dbname=database_name
+#enter s3 bucket name 
+s3_bucket_name=s3-bucket
 backup () {
 #Generating files backup and copying it to S3 bucket
-tar -czf /nfs-backuup/files/wp-content-$date.tar.gz $file && aws s3 cp /nfs-backuup/files/wp-content-$date.tar.gz s3://bovaping-backups/files/
+tar -czf /nfs-backuup/files/wp-content-$date.tar.gz $file && aws s3 cp /nfs-backuup/files/wp-content-$date.tar.gz s3://$s3_bucket_name/files/
 #Generating db bakups and copying it to S3 bucket
-mysqldump $dbname | gzip > /nfs-backuup/mysql/$dbname-$date.sql.gz && aws s3 cp /nfs-backuup/mysql/$dbname-$date.sql.gz s3://bovaping-backups/mysqlbackups/
+mysqldump $dbname | gzip > /nfs-backuup/mysql/$dbname-$date.sql.gz && aws s3 cp /nfs-backuup/mysql/$dbname-$date.sql.gz s3://$s3_bucket_name/mysqlbackups/
 }
 cleanup () {
 #removing backup files older than 7 days.
@@ -36,22 +39,22 @@ case $sel in
 			exit
 			;;
 		2) echo "Available files backups are: "
-			aws s3 ls s3://bovaping-backups/files/ | awk '{ print $4}'
+			aws s3 ls s3://$s3_bucket_name/files/ | awk '{ print $4}'
 			read -p "Select a backup file: " optfile
 			echo $optfile
 			if [ -d != /nfs-backuup/export_from_s3 ]
 				then
 				mkdir -p /nfs-backuup/export_from_s3
 			fi
-			aws s3 cp s3://bovaping-backups/files/$optfile /nfs-backuup/export_from_s3/
+			aws s3 cp s3://$s3_bucket_name/files/$optfile /nfs-backuup/export_from_s3/
 			rm -rf $file-original && mv $file{,-original} && mkdir $file
 			chown apache. $file
 			tar --same-owner -zxf /nfs-backuup/export_from_s3/$optfile --strip 2 -C $file && echo "Restored files to /var/wp-content"
 			echo "Available DB backups are: "
-			aws s3 ls s3://bovaping-backups/mysqlbackups/ | awk '{ print $4}'
+			aws s3 ls s3://$s3_bucket_name/mysqlbackups/ | awk '{ print $4}'
 			read -p "Select a database dump: " optdb
 			echo $optdb
-			aws s3 cp s3://bovaping-backups/mysqlbackups/$optdb /nfs-backuup/export_from_s3/
+			aws s3 cp s3://$s3_bucket_name/mysqlbackups/$optdb /nfs-backuup/export_from_s3/
 			mysql -e "drop database ${dbname}; create database ${dbname}"
 			gunzip < /nfs-backuup/export_from_s3/$optdb | mysql $dbname && echo "Restored $optdb to $dbname"
 			exit
