@@ -13,5 +13,5 @@ jobs:
       - run:
           name: Install openssh-client
           #command: sudo apt-get update && sudo apt-get install -y openssh-client
-          command: sudo yum makecache --refresh && sudo yum -y install gsi-openssh-clients
+          command: yum makecache --refresh && yum -y install gsi-openssh-clients
 
