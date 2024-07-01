@@ -5,12 +5,13 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/base:2024.07
+      - image: almalinux:8
 
     steps:
       - checkout
       # Replace this with steps to build a package, or executable
       - run:
           name: Install openssh-client
-          command: sudo apt-get update && sudo apt-get install -y openssh-client
+          #command: sudo apt-get update && sudo apt-get install -y openssh-client
+          command: sudo yum makecache --refresh && sudo yum -y install gsi-openssh-clients
 
