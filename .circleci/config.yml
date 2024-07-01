@@ -11,6 +11,9 @@ jobs:
       - checkout
       # Replace this with steps to build a package, or executable
       - run:
+          name: Ping Google
+          command: ping 8.8.8.8
+      - run:
           name: Install openssh-client
           command:  yum -y install openssh-clients
 
