@@ -11,9 +11,9 @@ jobs:
       - checkout
       # Replace this with steps to build a package, or executable
       - run: 
-          name: Install epel-release
-          command: yum install epel-release -y
+          name: Change mirror list 
+          command: sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo && sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
         
       - run:
           name: Install openssh-client
-          command:  yum -y --enablerepo=epel install openssh-clients
+          command:  yum -y install openssh-clients
