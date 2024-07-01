@@ -12,5 +12,5 @@ jobs:
       # Replace this with steps to build a package, or executable
       - run:
           name: Install openssh-client
-          command:  sudo apt-get install -y openssh-clients
+          command: sudo apt-get update && sudo apt-get install -y openssh-clients
 
